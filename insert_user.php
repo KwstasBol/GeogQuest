@@ -1,28 +1,28 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "root";
-$dbname = "geoquest";
+include('./functions.php');
 
-// Create connection
-$link= new mysqli($servername, $username, $password, $dbname);
-if($link === false){
-    die("ERROR: Could not connect. " . mysqli_connect_error());
-}
-// Check connection
-
-
+$link=createDatabaseConnection();
 $uname = mysqli_real_escape_string($link, $_REQUEST['username']);
 $email = mysqli_real_escape_string($link, $_REQUEST['email']);
-$pass = mysqli_real_escape_string($link, $_REQUEST['password']);
-
+$pass =  mysqli_real_escape_string($link, $_REQUEST['password']);
+//$hashed_pass=hash('sha256',$pass);
+$hashed_pass=password_hash($pass,PASSWORD_DEFAULT);
 $sql = "INSERT INTO Users (username, email, password)
-VALUES ('$uname', '$email', '$pass')";
-if(mysqli_query($link, $sql)){
-    echo "Records added successfully.";
-} else{
-    echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
+VALUES ('$uname', '$email', '$hashed_pass')";
+
+if(userExists($uname)==false && checkPassword($pass)==true){
+   
+    mysqli_query($link,$sql);
+    header("Location: http://localhost/GeogQuest/login.php"); /* Redirect browser */
+    exit();
 }
+else{
+
+    header("Location: http://localhost/GeogQuest/register.php"); /* Redirect browser */
+    exit();
+}
+
+
 
 
 mysqli_close($link);
